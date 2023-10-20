@@ -52,6 +52,13 @@ async function run() {
             };
             const result = await productCollection.findOneAndUpdate(filter, updateDoc, { upsert: true, returnDocument: 'after' });
             res.send(result);
+
+        });
+        // get data using id    
+        app.get("/productDetails/:id", async (req, res) => {
+            const id = req.params.id;
+            const result = await productCollection.find({ _id: new ObjectId(id) }).toArray();
+            res.send(result);
         });
 
         await client.db("admin").command({ ping: 1 });
