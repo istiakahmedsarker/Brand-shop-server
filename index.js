@@ -52,21 +52,40 @@ async function run() {
             };
             const result = await productCollection.findOneAndUpdate(filter, updateDoc, { upsert: true, returnDocument: 'after' });
             res.send(result);
-
         });
-        // get data using id    
+
         app.get("/productDetails/:id", async (req, res) => {
             const id = req.params.id;
             const result = await productCollection.find({ _id: new ObjectId(id) }).toArray();
             res.send(result);
         });
 
-        // set the data from addToCart
         app.post("/addToCart", async (req, res) => {
             const service = req.body;
             const result = await productCollection.insertOne(service);
             res.send(result);
         });
+
+        app.get("/myCart/:userEmail", async (req, res) => {
+            const email = req.params.userEmail;
+            const result = await productCollection.find({ email: email }).toArray();
+            res.send(result);
+        });
+
+        app.post("/myCartDetails", async (req, res) => {
+            const ids = req.body.ids;
+            const result = await productCollection.find({ _id: { $in: ids.map(id => new ObjectId(id)) } }).toArray();
+            res.send(result);
+        });
+
+        app.delete("/myCart/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const result = await productCollection.deleteOne({ myCartId: new ObjectId(id) });
+            console.log(result)
+            res.send(result);
+        });
+        
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
